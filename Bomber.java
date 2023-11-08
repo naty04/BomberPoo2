@@ -57,6 +57,7 @@
         private BombaFactory bombaFactory;
         private PlayerFactory playerFactory;
         public GameMenu currentState= new GameProgress(this); // Variável para rastrear o estado atual
+        private boolean repintarBomba = false;
 
         static boolean gameRunning;
 
@@ -73,6 +74,16 @@
         public Bomber() {
             setLayout(null);
 
+            Timer bombRepaintTimer = new Timer(500, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    repintarBomba = !repintarBomba;
+                    repaint();
+                }
+            });
+            bombRepaintTimer.start();
+
+            
             botaoIniciar = new JButton("Start");
             botaoIniciar.setBounds(getWidth() + 10, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
             botaoIniciar.addActionListener(this);
@@ -80,10 +91,10 @@
             bombaFactory = new BombaFactory();
             playerFactory = new PlayerFactory();
             
-                  botaoPausar = new JButton("Pause");
-                    botaoPausar.setBounds(getWidth() + 90, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
-                    botaoPausar.addActionListener(this);
-                    add(botaoPausar);
+            botaoPausar = new JButton("Pause");
+            botaoPausar.setBounds(getWidth() + 90, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
+            botaoPausar.addActionListener(this);
+            add(botaoPausar);
 
             botaoSalvar = new JButton("Save");
             botaoSalvar.setBounds(getWidth() + 170, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
@@ -393,7 +404,9 @@
                             corCelula = new Color(COR_JOGADOR2);
                             break;
                         case BOMBA:
-                            corCelula = new Color(COR_BOMBA);
+                            if(repintarBomba){
+                            corCelula = new Color(COR_BOMBA);}
+                            else{corCelula= Color.WHITE;}
                             break;
                         case BOOSTER_PONTUACAO:
                             corCelula = new Color(COR_BOOSTER_PONTUACAO);
