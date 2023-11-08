@@ -30,7 +30,6 @@ public class GameStateMemento implements Serializable {
         this.jogador2State = new int[] { jogador2.getX(), jogador2.getY(), jogador2.getVida(), jogador2.getScore() };
         jogador1Game = jogador1.getGameInstance();
         jogador2Game = jogador2.getGameInstance();
-        // Aqui, você deve inicializar outros campos do estado do jogo, se houver.
     }
 
     // Métodos para acessar informações específicas do jogo:
@@ -44,7 +43,7 @@ public class GameStateMemento implements Serializable {
     }
 
     public int getVidaJogador1() {
-        return jogador1State[2]; // Índice 2 representa a vida do jogador 1
+        return jogador1State[2]; 
     }
 
     public int getScoreJogador1() {
@@ -60,7 +59,7 @@ public class GameStateMemento implements Serializable {
     }
 
     public int getVidaJogador2() {
-        return jogador2State[2]; // Índice 2 representa a vida do jogador 2
+        return jogador2State[2]; 
     }
 
     public int getScoreJogador2() {
