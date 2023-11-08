@@ -1,3 +1,8 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package bomberman;
 
 /**
  *
@@ -58,8 +63,8 @@
         private PlayerFactory playerFactory;
         public GameMenu currentState= new GameProgress(this); // Variável para rastrear o estado atual
         private boolean repintarBomba = false;
-
         static boolean gameRunning;
+        
 
         public JButton botaoIniciar;
         public JButton botaoSalvar;
@@ -73,17 +78,16 @@
          */
         public Bomber() {
             setLayout(null);
-
-            Timer bombRepaintTimer = new Timer(500, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    repintarBomba = !repintarBomba;
-                    repaint();
-                }
-            });
-            bombRepaintTimer.start();
-
             
+             Timer bombRepaintTimer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                repintarBomba = !repintarBomba;
+                repaint();
+            }
+        });
+        bombRepaintTimer.start();
+
             botaoIniciar = new JButton("Start");
             botaoIniciar.setBounds(getWidth() + 10, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
             botaoIniciar.addActionListener(this);
@@ -91,10 +95,10 @@
             bombaFactory = new BombaFactory();
             playerFactory = new PlayerFactory();
             
-            botaoPausar = new JButton("Pause");
-            botaoPausar.setBounds(getWidth() + 90, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
-            botaoPausar.addActionListener(this);
-            add(botaoPausar);
+                  botaoPausar = new JButton("Pause");
+                    botaoPausar.setBounds(getWidth() + 90, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
+                    botaoPausar.addActionListener(this);
+                    add(botaoPausar);
 
             botaoSalvar = new JButton("Save");
             botaoSalvar.setBounds(getWidth() + 170, ALTURA_TABULEIRO * TAMANHO_CELULA + 70, 70, 30);
@@ -132,21 +136,11 @@
             this.bombas = bombas;
         }
         
-        public void salvarJogo() {
-        GameState gameState = new GameState(this.tabuleiro, this.bombas, this.jogador1, this.jogador2);
-
-        try (FileOutputStream fileOut = new FileOutputStream("salvar.dat");
-             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
-            out.writeObject(gameState);
-            System.out.println("Jogo salvo com sucesso!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro ao salvar o jogo.", "Erro", JOptionPane.ERROR_MESSAGE);
-        }
+       public void salvarJogo() {
+        GameStateMemento gameState = new GameStateMemento(tabuleiro, bombas, jogador1, jogador2);
+        GameSaveLoad.saveGameState(gameState, "salvar.dat");
+        System.out.println("Jogo salvo com sucesso!");
     }
-
-
-
 
 
         public List<Bomba> getBombas() {
@@ -182,7 +176,7 @@
             public void carregarJogo() {
         try (FileInputStream fileIn = new FileInputStream("salvar.dat");
              ObjectInputStream in = new ObjectInputStream(fileIn)) {
-            GameState gameState = (GameState) in.readObject();
+            GameStateMemento gameState = (GameStateMemento) in.readObject();
             this.tabuleiro = gameState.getTabuleiro();
             this.bombas = gameState.getBombas();
             this.jogador1.setPlayerState(gameState.getxJogador1(), gameState.getyJogador1(), gameState.getVidaJogador1(), gameState.getScoreJogador1());
@@ -246,42 +240,67 @@
         /**
          * Coloca uma bomba no tabuleiro.
          */
-            private void colocarBomba(Player jogador, int dano) {
-            int x = jogador.getX();
-            int y = jogador.getY();
-            Bomba bomba = bombaFactory.createBomba(x, y, dano, this);
-            BombaCommand bombacommand= new BombaCommand(jogador,dano);
-            bombas.add(bomba);
-            tabuleiro[x][y] = BOMBA;
-            bombaCoordenadas[x][y] = 1;
+    private void colocarBomba(Player jogador, int dano) {
+    int x = jogador.getX();
+    int y = jogador.getY();
+    
+    Bomba bomba = bombaFactory.createBomba(x, y, dano, this);
+    BombaCommand bombacommand= new BombaCommand(jogador,dano);
+    bombas.add(bomba);
+    tabuleiro[x][y] = BOMBA;
+    bombaCoordenadas[x][y] = 1;
+    
+    // Passar os jogadores como argumentos no ActionListener
+    new Timer(3000, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Verifica se a bomba atingiu o jogador1
+        int distanciaX1 = Math.abs(jogador1.getX() - x);
+        int distanciaY1 = Math.abs(jogador1.getY() - y);
 
-            repaint();
-            bombacommand.colocarBomba(tabuleiro, jogador1, jogador2, 3000); // 3 segundos até a explosão
+        if (distanciaX1 <= 1 && distanciaY1 <= 1) {
+            jogador1.perderVida(dano);
+        }
 
-            new java.util.Timer().schedule(
-                new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        // Verifica se a bomba destruiu uma parede destrutível
-                        for (int dx = -1; dx <= 1; dx++) {
-                            for (int dy = -1; dy <= 1; dy++) {
-                                int nx = x + dx;
-                                int ny = y + dy;
-                                if (ehValido(nx, ny)) {
-                                    if (tabuleiro[nx][ny] == PAREDE_DESTRUTIVEL) {
-                                        synchronized(jogador) {
-                                            jogador.addScore(2);  // Adiciona 2 pontos ao jogador
-                                        }
-                                        tabuleiro[nx][ny] = 0;  // Remove a parede
-                                    }
+        // Verifica se a bomba atingiu o jogador2
+        int distanciaX2 = Math.abs(jogador2.getX() - x);
+        int distanciaY2 = Math.abs(jogador2.getY() - y);
+
+        if (distanciaX2 <= 1 && distanciaY2 <= 1) {
+            jogador2.perderVida(dano);
+        }
+
+        // Remove a bomba após a explosão
+        bombas.remove(bomba);
+        tabuleiro[x][y] = 0;
+    }
+}).start();
+
+    new java.util.Timer().schedule(
+        new java.util.TimerTask() {
+            @Override
+            public void run() {
+                // Verifica se a bomba destruiu uma parede destrutível
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        int nx = x + dx;
+                        int ny = y + dy;
+                        if (ehValido(nx, ny)) {
+                            if (tabuleiro[nx][ny] == PAREDE_DESTRUTIVEL) {
+                                synchronized(jogador) {
+                                    jogador.addScore(2);  // Adiciona 2 pontos ao jogador
                                 }
+                                tabuleiro[nx][ny] = 0;  // Remove a parede
                             }
                         }
                     }
-                },
-                3000
-            );
-        }
+                }
+            }
+        },
+        3000
+    );
+}
+
             
         /**
         *Verifica se as coordenadas (x, y) são válidas dentro dos limites do tabuleiro.
@@ -290,7 +309,9 @@
             return x >= 0 && x < LARGURA_TABULEIRO && y >= 0 && y < ALTURA_TABULEIRO;
         }
 
-
+        private void update(Player player, int boosterType) {
+            player.update(player, boosterType);
+        }
         /**
          * Move um jogador para uma nova posicao.
          */
@@ -304,10 +325,21 @@
                 }
                 int valorCelula = tabuleiro[novoX][novoY];
                 if (valorCelula == BOOSTER_PONTUACAO) {
-                    jogador.addScore(scoreBooster);
-                } else if (valorCelula == BOOSTER_VIDA) {
-                    jogador.addVida(10);
+                jogador.addScore(scoreBooster);
+                if (jogador == jogador1) {
+                    update(jogador1, BOOSTER_PONTUACAO); // Notifica jogador1 sobre o booster de pontuação
+                } else if (jogador == jogador2) {
+                    update(jogador2, BOOSTER_PONTUACAO); // Notifica jogador2 sobre o booster de pontuação
                 }
+            } else if (valorCelula == BOOSTER_VIDA) {
+                if (jogador == jogador1) {
+                    update(jogador1, BOOSTER_VIDA); // Notifica jogador1 sobre o booster de vida
+                } else if (jogador == jogador2) {
+                    update(jogador2, BOOSTER_VIDA); // Notifica jogador2 sobre o booster de vida
+                }
+                jogador.addVida(10);
+            }
+
                 tabuleiro[xAtual][yAtual] = 0;
                 jogador.mover(novoX, novoY);
                 tabuleiro[novoX][novoY] = (jogador == jogador1) ? JOGADOR1 : JOGADOR2;
@@ -361,22 +393,16 @@
                 if (tabuleiro[x][y] == 0) {
                     if (boostersPontuacao > 0) {
                         tabuleiro[x][y] = BOOSTER_PONTUACAO;
-                        update(jogador1, BOOSTER_PONTUACAO); // Notifica jogador1 sobre o booster de pontuação
-                        update(jogador2, BOOSTER_PONTUACAO); // Notifica jogador2 sobre o booster de pontuação
                         boostersPontuacao--;
                     } else if (boostersVida > 0) {
                         tabuleiro[x][y] = BOOSTER_VIDA;
-                        update(jogador1, BOOSTER_PONTUACAO); // Notifica jogador1 sobre o booster de pontuação
-                        update(jogador2, BOOSTER_PONTUACAO); // Notifica jogador2 sobre o booster de pontuação
                         boostersVida--;
                     }
                 }
             }
         }
         
-        private void update(Player player, int boosterType) {
-            player.update(player, boosterType);
-        }
+    
 
         /**
          * Desenha o tabuleiro e os elementos do jogo.
@@ -406,7 +432,7 @@
                         case BOMBA:
                             if(repintarBomba){
                             corCelula = new Color(COR_BOMBA);}
-                            else{corCelula= Color.WHITE;}
+                            else{corCelula = Color.white;}
                             break;
                         case BOOSTER_PONTUACAO:
                             corCelula = new Color(COR_BOOSTER_PONTUACAO);
