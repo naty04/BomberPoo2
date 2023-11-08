@@ -5,14 +5,14 @@
  */
 
 /*
- * A classe GameState é responsável por armazenar e fornecer informações sobre o estado atual do jogo.
- * Isso inclui informações sobre o tabuleiro, bombas, jogadores e outros elementos do jogo.
+ * A classe GameState é responsável por armazenar e fornecer informações sobre o estado atual do jogo
+ * para que o jogo possa ser salvo.
  */
 import java.util.ArrayList;
 import java.util.List;
 import java.io.Serializable;
 
-public class GameState implements Serializable {
+public class GameStateMemento implements Serializable {
     private int[][] tabuleiro;
     private List<Bomba> bombas;
     private int[] jogador1State;
@@ -23,7 +23,7 @@ public class GameState implements Serializable {
     /**
      * Construtor da classe GameState. Inicializa o estado com informações relevantes do jogo.
      */
-    public GameState(int[][] tabuleiro, List<Bomba> bombas, Player jogador1, Player jogador2) {
+    public GameStateMemento(int[][] tabuleiro, List<Bomba> bombas, Player jogador1, Player jogador2) {
         this.tabuleiro = tabuleiro;
         this.bombas = bombas;
         this.jogador1State = new int[] { jogador1.getX(), jogador1.getY(), jogador1.getVida(), jogador1.getScore() };
