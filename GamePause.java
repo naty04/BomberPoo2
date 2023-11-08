@@ -7,19 +7,11 @@
  * Este é o início da definição da classe GamePause, que representa o estado de pausa no jogo Bomberman.
  */
 
-/**
- * Esta classe implementa a interface GameMenu e representa o estado de pausa no jogo Bomberman.
- */
 import java.io.Serializable;
 
 public class GamePause implements GameMenu, Serializable {
     private Bomber bomber;
-    
-    /**
-     * Construtor da classe GamePause que recebe uma instância de Bomber para gerenciar o estado do jogo.
-     *
-     * @param bomber A instância de Bomber associada ao estado de pausa.
-     */
+   
     public GamePause(Bomber bomber) {
         this.bomber = bomber;
     }
@@ -40,6 +32,5 @@ public class GamePause implements GameMenu, Serializable {
      */
     @Override
     public void pause() {
-        // O jogo já está pausado, então não é necessário fazer nada aqui.
     }
 }
