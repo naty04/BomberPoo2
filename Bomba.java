@@ -25,7 +25,7 @@ public class Bomba implements Serializable {
         this.y = y;
         this.dano = dano;
         this.jogo = jogo; // Injeta a dependência da instância do jogo
-        this.aumentaScore = aumentaScore; // Talvez você queira atribuir um valor aqui
+        this.aumentaScore = aumentaScore;
     }
 
     // Método para obter a coordenada x da bomba
