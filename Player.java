@@ -105,12 +105,9 @@ public class Player implements BoosterObserver, Serializable {
     */
     @Override
     public void update(Player player, int boosterTipo) {
-        // Implemente o que o jogador deve fazer quando receber uma notificação de uso de booster.
         if (boosterTipo == Bomber.BOOSTER_PONTUACAO) {
-            // Adicione a lógica para lidar com o booster de pontuação.
             this.score += Bomber.scoreBooster;
         } else if (boosterTipo == Bomber.BOOSTER_VIDA) {
-            // Adicione a lógica para lidar com o booster de vida.
             this.vida += 10;
         }
     }
