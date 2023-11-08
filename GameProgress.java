@@ -14,7 +14,6 @@ public class GameProgress implements GameMenu,Serializable {
 
     @Override
     public void start() {
-        // O jogo já está em andamento, então não é necessário fazer nada aqui.
     }
 
     @Override
